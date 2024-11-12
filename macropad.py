@@ -1,48 +1,57 @@
 from macro import Macro
 from keyboard import Keyboard
 from actions import *
+from macro_factory import *
+from xmlparser import Element, InvalidDataException
+
+import sys
+
+import re
 
 def setup():
     kb = Keyboard()
 
-    layer1 = [Macro(kb), Macro(kb), Macro(kb)]
-    layer2 = [Macro(kb), Macro(kb), Macro(kb)]
+    if len(sys.argv) == 1:
+        return [loadFile("example-macros-1.xml", kb), loadFile("example-macros-2.xml", kb)]
 
-    layer1[0].add(TypeString('Hello, world!'))
+    targets = sys.argv[1:]
+    layers = []
+    for path in targets:
+        layers.append(loadFile(path, kb))
 
-    layer1[1].add(Tap('f'))
-    layer1[1].add(Tap('o'))
-    layer1[1].add(Tap('o'))
+    return layers
 
-    layer1[2].add(Repeat([TypeString('HAHA')], 5))
+def loadFile(file_path: str, keyboard: Keyboard):
+    factory = MacroFactory(keyboard)
 
-    layer2[0].add(TypeString('username'))
-    layer2[0].add(Tap('tab'))
-    layer2[0].add(TypeString('password'))
-    layer2[0].add(Tap('return'))
+    macros = []
 
-    layer2[1].add(Tap('5'))
-    layer2[1].add(Wait(1))
-    layer2[1].add(Tap('4'))
-    layer2[1].add(Wait(1))
-    layer2[1].add(Tap('3'))
-    layer2[1].add(Wait(1))
-    layer2[1].add(Tap('2'))
-    layer2[1].add(Wait(1))
-    layer2[1].add(Tap('1'))
-    layer2[1].add(Wait(1))
-    layer2[1].add(TypeString('Blastoff!'))
-    
-    layer2[2].add(Down('win'))
-    layer2[2].add(Down('x'))
-    layer2[2].add(Up('x'))
-    layer2[2].add(Up('win'))
-    layer2[2].add(Wait(0.1))
-    layer2[2].add(Tap('u'))
-    layer2[2].add(Wait(0.1))
-    layer2[2].add(Tap('s'))
+    with open(file_path, "r") as macrospec:
+        header = macrospec.readline().strip()
+        if header != "<!DOCTYPE macrospec>":
+            raise InvalidDataException("Missing '<!DOCTYPE macrospec>' header")
+        
+        data = macrospec.read().strip()
+        data_clean = re.sub(r'[\n\t]', '', data)
+        data_clean = re.sub(r'  +', '', data_clean)
+        
+        elements = []
+        active_el = Element()
 
-    return layer1, layer2
+        for c in data_clean:
+            active_el.push(c)
+            if active_el.closed:
+                elements.append(active_el)
+                active_el = Element()
+
+        for el in elements:
+            # print(f"{el.tag}: {el.attributes['name']}")
+            # for ch in el.children:
+            #     print(f"\t{ch.tag} ({ch.body})")
+
+            macros.append(factory.create(el))
+
+        return macros
 
 def main():
     layers = setup()
@@ -53,17 +62,17 @@ def main():
         cmd = input()
 
         if cmd == 'switch':
-            active_layer = (active_layer+1)%2
+            active_layer = (active_layer+1)%len(layers)
             print(f'switched to layer {active_layer+1}')
         elif cmd == 'quit':
             return
         else:
             try:
                 num = int(cmd)
-                if num in range(3):
+                if num in range(len(layers[active_layer])):
                     layers[active_layer][num].execute()
             except ValueError as v:
-                print('Not a valid number')
+                print('Not a valid command')
 
 if __name__ == '__main__':
     main()

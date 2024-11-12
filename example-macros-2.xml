@@ -1,0 +1,33 @@
+<!DOCTYPE macrospec>
+
+<macro name="login">
+    <TypeString>username</TypeString>
+    <Tap>tab</Tap>
+    <TypeString>password</TypeString>
+    <Tap>return</Tap>
+</macro>
+
+<macro name="countdown">
+    <Tap>5</Tap>
+    <Wait delay="1"></Wait>
+    <Tap>4</Tap>
+    <Wait delay="1"></Wait>
+    <Tap>3</Tap>
+    <Wait delay="1"></Wait>
+    <Tap>2</Tap>
+    <Wait delay="1"></Wait>
+    <Tap>1</Tap>
+    <Wait delay="1"></Wait>
+    <TypeString>Blastoff!</TypeString>
+</macro>
+
+<macro name="sleep">
+    <Down>win</Down>
+    <Down>x</Down>
+    <Up>x</Up>
+    <Up>win</Up>
+    <Wait delay="0.1"></Wait>
+    <Tap>u</Tap>
+    <Wait delay="0.1"></Wait>
+    <Tap>s</Tap>
+</macro>

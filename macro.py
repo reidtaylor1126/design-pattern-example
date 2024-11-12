@@ -1,7 +1,8 @@
 from actions import *
 
 class Macro:
-    def __init__(self, keyboard):
+    def __init__(self, keyboard, name="untitled macro"):
+        self.name = name
         self.keyboard = keyboard
         self.sequence = []
 

@@ -1,0 +1,17 @@
+<!DOCTYPE macrospec>
+
+<macro name="hello world">
+    <TypeString>Hello, world!</TypeString>
+</macro>
+
+<macro name="foo">
+    <Tap>f</Tap>
+    <Tap>o</Tap>
+    <Tap>o</Tap>
+</macro>
+
+<macro name="laugh">
+    <Repeat times="5">
+        <TypeString>HAHA</TypeString>
+    </Repeat>
+</macro>
